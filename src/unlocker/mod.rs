@@ -9,10 +9,11 @@
 
 use dbus::blocking::{BlockingSender, Connection};
 use dbus::message::Message;
+use log::{error, info};
 use std::error::Error;
 use std::time::Duration;
-use tokio::time::sleep;
 use tokio::signal::unix::{signal, SignalKind};
+use tokio::time::sleep;
 pub mod config;
 pub mod service;
 
@@ -22,7 +23,7 @@ async fn get_lock_status() -> Result<bool, Box<dyn Error>> {
         "org.gnome.ScreenSaver",
         "/org/gnome/ScreenSaver",
         "org.gnome.ScreenSaver",
-        "GetActive"
+        "GetActive",
     )?;
     let reply = connection.send_with_reply_and_block(msg, Duration::from_secs(2))?;
     let is_active: bool = reply.read1()?;
@@ -30,32 +31,42 @@ async fn get_lock_status() -> Result<bool, Box<dyn Error>> {
 }
 
 pub async fn start_daemon(config_data: &config::Config) -> Result<(), Box<dyn Error>> {
+    env_logger::init();
     let mut sigterm = signal(SignalKind::terminate())?;
     let mut sigint = signal(SignalKind::interrupt())?;
     let mut device = config_data.device.clone();
+    info!("BUnlock daemon started");
     loop {
         tokio::select! {
             _ = sigterm.recv() => {
-                println!("Received SIGTERM, shutting down...");
+                info!("BUnlock - Received SIGTERM, shutting down...");
                 break;
             }
             _ = sigint.recv() => {
-                println!("Received SIGINT, shutting down...");
+                info!("BUnlock - Received SIGINT, shutting down...");
                 break;
             }
             _ = async {
-                let rssi = device.update_rssi().await;
                 let locked = get_lock_status().await.unwrap_or(false);
-
-                if (config_data.distance <= rssi) && locked {
-                    std::process::Command::new("loginctl")
+                if locked {
+                    let rssi = device.update_rssi().await;
+                    if config_data.distance <= rssi {
+                        if let Err(e) = std::process::Command::new("loginctl")
                         .arg("unlock-session")
                         .output()
-                        .expect("Failed to unlock session");
+                        {
+                            error!("Failed to unlock session: {}", e);
+                        } else {
+                            info!("System unlocked wtih {}", device.name);
+                        }
+                    } else {
+                        info!("RSSI ({}) does not meet the unlocking criteria", rssi);
+                    }
                 }
                 sleep(Duration::from_secs(2)).await;
             } => {}
         }
     }
+    info!("BUnlock daemon shutting down");
     Ok(())
 }

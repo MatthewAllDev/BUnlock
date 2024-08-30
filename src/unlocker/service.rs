@@ -31,6 +31,9 @@ After=network.target
 
 [Service]
 ExecStart={}
+Environment=RUST_LOG=info
+StandardOutput=journal
+StandardError=journal
 Restart=always
 RestartSec=5
 
