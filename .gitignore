@@ -1,0 +1,8 @@
+# IDE files
+.vscode/
+
+# Project config
+config.json
+
+# Generated files
+/target/
