@@ -5,16 +5,7 @@ SERVICE_PATH="$HOME/.config/systemd/user/bunlock.service"
 CONFIG_DIR="$HOME/.config/bunlock"
 PROFILE_FILES=("$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.profile")
 
-if bunlock service is_active; then
-    bunlock service stop
-fi
-
-bunlock service disable
-
-if [ -f "$SERVICE_PATH" ]; then
-    rm "$SERVICE_PATH"
-    systemctl --user daemon-reload
-fi
+bunlock service remove
 
 if [ -d "$BIN_PATH" ]; then
     rm -rf "$BIN_PATH"

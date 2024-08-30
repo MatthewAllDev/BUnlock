@@ -14,19 +14,20 @@ mod unlocker;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let matches = Command::new("bunlock")
-        .version("0.1")
+        .version("0.1.0")
         .author("Ilia MatthewAllDev Kuvarzin <luceo2011@yandex.ru>")
         .about("A tool for unlocking your system using a Bluetooth device")
         .subcommand(Command::new("config").about("Runs the configuration setup"))
         .subcommand(
             Command::new("service")
                 .about("Manage the systemd service")
-                .subcommand(Command::new("enable").about("Enable the service"))
+                .subcommand(Command::new("enable").about("Enable and create the service if it doesn't exist"))
                 .subcommand(Command::new("disable").about("Disable the service"))
                 .subcommand(Command::new("start").about("Start the service"))
                 .subcommand(Command::new("stop").about("Stop the service"))
                 .subcommand(Command::new("restart").about("Restart the service"))
-                .subcommand(Command::new("is_active").about("Check if the service is active")),
+                .subcommand(Command::new("is_active").about("Check if the service is active"))
+                .subcommand(Command::new("remove").about("Remove the service")),
         )
         .get_matches();
 
@@ -58,6 +59,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                         },
                     }
                 },
+                Some(("remove", _)) => unlocker::service::remove_service()?,
                 _ => eprintln!("Unknown service command"),
             }
         }

@@ -63,6 +63,7 @@ You can manage the BUnlock systemd service using the following commands:
     ```bush
     bunlock service enable
     ```
+    \* This command enables the service, creates it if it doesn’t already exist, and sets it up to start on boot.
 
 * **Disable the service:**
     ```bush

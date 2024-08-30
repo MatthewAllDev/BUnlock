@@ -49,6 +49,22 @@ WantedBy=default.target
     Ok(())
 }
 
+pub fn remove_service() -> Result<(), Box<dyn StdError>> {
+    if !exists()? {
+        return Err("Service does not exist".into());
+    }
+    if is_running()? {
+        stop()?;
+    }
+    disable()?;
+    let service_file_path = format!("~/.config/systemd/user/{}", SERVICE_NAME);
+    let expanded_path = service_file_path.replace("~", &get_home_dir());
+    std::fs::remove_file(&expanded_path)?;
+    reload_systemd_configuration()?;
+    Ok(())
+
+}
+
 fn reload_systemd_configuration() -> Result<(), Box<dyn StdError>> {
     let status = Command::new("systemctl")
         .arg("--user")
