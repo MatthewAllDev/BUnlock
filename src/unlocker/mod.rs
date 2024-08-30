@@ -9,11 +9,12 @@
 
 use dbus::blocking::{BlockingSender, Connection};
 use dbus::message::Message;
-use log::{error, info};
+use log::{debug, error, info};
 use std::error::Error;
-use std::time::Duration;
+use std::time::{Duration, SystemTime};
 use tokio::signal::unix::{signal, SignalKind};
 use tokio::time::sleep;
+mod bluetooth;
 pub mod config;
 pub mod service;
 
@@ -31,22 +32,31 @@ async fn get_lock_status() -> Result<bool, Box<dyn Error>> {
 }
 
 pub async fn start_daemon(config_data: &config::Config) -> Result<(), Box<dyn Error>> {
-    env_logger::init();
     let mut sigterm = signal(SignalKind::terminate())?;
     let mut sigint = signal(SignalKind::interrupt())?;
     let mut device = config_data.device.clone();
-    info!("BUnlock daemon started");
+    let mut last_check = SystemTime::now();
+    let timeout_duration = Duration::from_secs(2);
+    info!("Daemon started");
     loop {
         tokio::select! {
             _ = sigterm.recv() => {
-                info!("BUnlock - Received SIGTERM, shutting down...");
+                debug!("Received SIGTERM, shutting down...");
                 break;
             }
             _ = sigint.recv() => {
-                info!("BUnlock - Received SIGINT, shutting down...");
+                debug!("Received SIGINT, shutting down...");
                 break;
             }
             _ = async {
+                let now = SystemTime::now();
+                let elapsed = now.duration_since(last_check).unwrap_or(Duration::from_secs(0));
+                if elapsed > timeout_duration * 2 {
+                    debug!("Detected system suspend or significant delay, re-initiating Bluetooth device search.");
+                    if let Err(e) = bluetooth::start_scan(None).await {
+                        error!("Failed to get Bluetooth adapter: {}", e);
+                    }
+                }
                 let locked = get_lock_status().await.unwrap_or(false);
                 if locked {
                     let rssi = device.update_rssi().await;
@@ -60,13 +70,14 @@ pub async fn start_daemon(config_data: &config::Config) -> Result<(), Box<dyn Er
                             info!("System unlocked wtih {}", device.name);
                         }
                     } else {
-                        info!("RSSI ({}) does not meet the unlocking criteria", rssi);
+                        debug!("RSSI ({}) does not meet the unlocking criteria", rssi);
                     }
                 }
-                sleep(Duration::from_secs(2)).await;
+                last_check = now;
+                sleep(timeout_duration).await;
             } => {}
         }
     }
-    info!("BUnlock daemon shutting down");
+    info!("Daemon shutting down");
     Ok(())
 }

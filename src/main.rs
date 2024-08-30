@@ -64,6 +64,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
             }
         }
         _ => {
+            env_logger::init();
             let config_data = unlocker::config::Config::new().await?;
             unlocker::start_daemon(&config_data).await?;
         }

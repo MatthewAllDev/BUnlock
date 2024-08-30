@@ -9,3 +9,4 @@
 
 pub mod device;
 pub mod bluetooth;
+pub use bluetooth::start_scan;

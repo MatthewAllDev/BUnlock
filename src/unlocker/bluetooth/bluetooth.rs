@@ -8,12 +8,23 @@
  */
 
 use std::error::Error;
-use btleplug::api::Manager as _;
-use btleplug::platform::{Manager, Adapter};
+use btleplug::api::{Central, ScanFilter, Manager as _};
+pub use btleplug::platform::{Manager, Adapter};
 
 pub async fn get_adapter()-> Result<Adapter, Box<dyn Error>> {
     let manager = Manager::new().await?;
     let adapters = manager.adapters().await?;
     let central = adapters.into_iter().nth(0).ok_or("No adapters found")?;
     Ok(central)
+}
+
+pub async fn start_scan(adapter: Option<Adapter>) -> Result<Adapter, Box<dyn Error>> {
+    let adapter = match adapter {
+        Some(ad) => ad,
+        None => {
+            get_adapter().await?
+        }
+    };
+    adapter.start_scan(ScanFilter::default()).await?;
+    Ok(adapter)
 }
