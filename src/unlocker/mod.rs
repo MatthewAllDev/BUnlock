@@ -38,6 +38,7 @@ pub async fn start_daemon(config_data: &config::Config) -> Result<(), Box<dyn Er
     let mut last_check = SystemTime::now();
     let timeout_duration = Duration::from_secs(2);
     info!("Daemon started");
+    device.update_peripheral().await?;
     loop {
         tokio::select! {
             _ = sigterm.recv() => {

@@ -47,10 +47,8 @@ impl Config {
         let mut file = File::open(path)?;
         let mut contents = String::new();
         file.read_to_string(&mut contents)?;
-        let mut config: Config =
+        let config: Config =
             serde_json::from_str(&contents).map_err(|e| Box::new(e) as Box<dyn StdError>)?;
-        config.device.update_peripheral().await?;
-        config.device.update_rssi().await;
         Ok(config)
     }
 
