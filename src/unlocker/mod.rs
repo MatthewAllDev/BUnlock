@@ -54,7 +54,7 @@ pub async fn start_daemon(config_data: &config::Config) -> Result<(), Box<dyn Er
                 let elapsed = now.duration_since(last_check).unwrap_or(Duration::from_secs(0));
                 if elapsed > timeout_duration * 2 {
                     debug!("Detected system suspend or significant delay, re-initiating Bluetooth device search.");
-                    if let Err(e) = bluetooth::start_scan(None).await {
+                    if let Err(e) = bluetooth::start_scan(None, true).await {
                         error!("Failed to get Bluetooth adapter: {}", e);
                     }
                 }

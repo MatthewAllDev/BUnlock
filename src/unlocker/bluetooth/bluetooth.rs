@@ -9,7 +9,9 @@
 
 use std::error::Error;
 use btleplug::api::{Central, ScanFilter, Manager as _};
+use tokio::time::{sleep, Duration};
 pub use btleplug::platform::{Manager, Adapter};
+use log::{info, error};
 
 pub async fn get_adapter()-> Result<Adapter, Box<dyn Error>> {
     let manager = Manager::new().await?;
@@ -18,13 +20,25 @@ pub async fn get_adapter()-> Result<Adapter, Box<dyn Error>> {
     Ok(central)
 }
 
-pub async fn start_scan(adapter: Option<Adapter>) -> Result<Adapter, Box<dyn Error>> {
+pub async fn start_scan(adapter: Option<Adapter>, wait_for_adapter: bool) -> Result<Adapter, Box<dyn Error>> {
     let adapter = match adapter {
         Some(ad) => ad,
         None => {
             get_adapter().await?
         }
     };
-    adapter.start_scan(ScanFilter::default()).await?;
-    Ok(adapter)
+    loop {
+        match adapter.start_scan(ScanFilter::default()).await {
+            Ok(_) => return Ok(adapter),
+            Err(e) => {
+                if wait_for_adapter {
+                    info!("Adapter not ready for scanning, waiting...");
+                    sleep(Duration::from_secs(5)).await;
+                } else {
+                    error!("Failed to start scanning: {}", e);
+                    return Err(e.into());
+                }
+            }
+        }
+    }
 }

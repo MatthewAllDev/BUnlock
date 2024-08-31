@@ -19,8 +19,7 @@ use tokio::time::{sleep, Duration};
 mod bluetooth;
 
 pub async fn get_all() -> Result<Vec<Device>, Box<dyn Error>> {
-    let adapter = bluetooth::get_adapter().await?;
-    adapter.start_scan(ScanFilter::default()).await?;
+    let adapter = bluetooth::start_scan(None, false).await?;
     let mut devices: Vec<Device> = vec![];
     for peripheral in adapter.peripherals().await? {
         let d = Device::from_peripheral(peripheral)
@@ -58,8 +57,7 @@ impl Device {
 
     pub async fn update_peripheral(&mut self) -> Result<(), Box<dyn Error>> {
         debug!("Searching for peripheral with id: {}", self.id);
-        let adapter = bluetooth::get_adapter().await?;
-        adapter.start_scan(ScanFilter::default()).await?;
+        let adapter = bluetooth::start_scan(None, true).await?;
         let mut attempt_count = 0;
         let max_attempts_before_delay = 10;
         let mut current_delay = Duration::from_millis(1000);
