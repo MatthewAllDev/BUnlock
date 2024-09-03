@@ -1,5 +1,6 @@
 # BUnlock
 
+- [Desktop Environment Support Status](#desktop-environment-support-status)
 - [Installation](#installation)
 - [Usage](#usage)
 - [Service Management](#service-management)
@@ -14,6 +15,20 @@ BUnlock is a command-line tool that allows you to unlock your system using a Blu
 ### ⚠️ Security Warning
 
 Using BUnlock to automatically unlock your system based on Bluetooth proximity can introduce potential security risks. If your Bluetooth device is lost, stolen, or if someone mimics its signal, unauthorized access to your system may occur. Ensure that you understand these risks before enabling this feature.
+
+## Desktop Environment Support Status
+
+The following table shows the implementation and testing status of different desktop environments:
+| DE        | Support Status     | Tested |
+|-----------|--------------------|--------|
+| GNOME     | ✅ Implemented      | ✅     |
+| KDE       | ✅ Implemented      |        |
+| XFCE      | ✅ Implemented      |        |
+| MATE      | ✅ Implemented      |        |
+| Cinnamon  | ✅ Implemented      |        |
+| Pantheon  | ✅ Implemented      |        |
+| DDE       | ✅ Implemented      |        |
+
 
 
 ## Installation
@@ -108,6 +123,5 @@ Ilia MatthewAllDev Kuvarzin <luceo2011@yandex.ru>
 
 ## TODO / Future Features
 
-- **Support for Other Desktop Environments:** Currently, BUnlock only supports GNOME. Future updates will aim to add compatibility with other popular desktop environments such as KDE, MATE, and others.
 - **Enhanced Security:** Ongoing improvements to strengthen security features, including better handling of Bluetooth device impersonation risks.
 - **Performance Improvements:** Efforts to optimize the application, reducing resource usage and improving responsiveness.
