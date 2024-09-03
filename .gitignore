@@ -6,3 +6,6 @@ config.json
 
 # Generated files
 /target/
+
+# Release packets
+bunlock-v*.tar.gz
