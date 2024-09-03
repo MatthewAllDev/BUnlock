@@ -7,7 +7,7 @@
  * See the LICENSE file for details.
  */
 
-use btleplug::api::{Central, Peripheral as _, ScanFilter};
+use btleplug::api::{Central, Peripheral as _};
 use btleplug::platform::Peripheral;
 use log::{debug, error};
 use serde::{self, Deserialize, Deserializer, Serialize, Serializer};
@@ -15,8 +15,7 @@ use std::fmt;
 use std::{error::Error, i16};
 use tokio::signal::unix::{signal, SignalKind};
 use tokio::time::{sleep, Duration};
-#[path = "bluetooth.rs"]
-mod bluetooth;
+use crate::unlocker::bluetooth::bluetooth;
 
 pub async fn get_all() -> Result<Vec<Device>, Box<dyn Error>> {
     let adapter = bluetooth::start_scan(None, false).await?;

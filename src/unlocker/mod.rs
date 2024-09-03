@@ -12,10 +12,10 @@ use std::error::Error;
 use std::time::{Duration, SystemTime};
 use tokio::signal::unix::{signal, SignalKind};
 use tokio::time::sleep;
-mod bluetooth;
+pub mod bluetooth;
 pub mod config;
 pub mod service;
-mod lock_status;
+pub mod lock_status;
 
 
 pub async fn start_daemon(config_data: &config::Config) -> Result<(), Box<dyn Error>> {

@@ -15,10 +15,8 @@ use std::fs::{File, Permissions, create_dir_all, set_permissions};
 use std::io::{self, Read, Write};
 use std::os::unix::fs::PermissionsExt;
 use std::path::Path;
-#[path = "bluetooth/mod.rs"]
-mod bluetooth;
-#[path = "service.rs"]
-mod service;
+pub use crate::unlocker::bluetooth;
+pub use crate::unlocker::service;
 
 const CONFIG_PATH: &str = "~/.config/bunlock/config.json";
 
