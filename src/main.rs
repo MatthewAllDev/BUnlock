@@ -14,7 +14,7 @@ mod unlocker;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let matches = Command::new("bunlock")
-        .version("0.1.0")
+        .version("0.2.0")
         .author("Ilia MatthewAllDev Kuvarzin <luceo2011@yandex.ru>")
         .about("A tool for unlocking your system using a Bluetooth device")
         .subcommand(Command::new("config").about("Runs the configuration setup"))
